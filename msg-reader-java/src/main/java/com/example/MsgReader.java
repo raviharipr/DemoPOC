@@ -3,6 +3,8 @@ package com.example;
 import org.apache.poi.hsmf.MAPIMessage;
 import org.apache.poi.hsmf.datatypes.AttachmentChunks;
 import org.apache.poi.hsmf.exceptions.ChunkNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,23 +12,24 @@ import java.io.IOException;
 
 public class MsgReader {
 
+    private static final Logger logger = LoggerFactory.getLogger(MsgReader.class);
+
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.out.println("Usage: java -jar msg-reader-1.0-SNAPSHOT.jar <folder_path>");
-            args = new String[]{"./dir/sample-msg-files/"};
-            //   return;
+            logger.error("Usage: java -jar msg-reader-1.0-SNAPSHOT.jar <folder_path>");
+            return;
         }
 
         File folder = new File(args[0]);
         if (!folder.isDirectory()) {
-            System.out.println("The provided path is not a directory.");
+            logger.error("The provided path is not a directory.");
             return;
         }
 
         File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".msg"));
 
         if (files == null || files.length == 0) {
-            System.out.println("No .msg files found in the directory.");
+            logger.info("No .msg files found in the directory.");
             return;
         }
 
@@ -36,17 +39,17 @@ public class MsgReader {
         }
 
         for (File msgFile : files) {
-            System.out.println("===================================================");
-            System.out.println("Reading file: " + msgFile.getName());
-            System.out.println("===================================================");
+            logger.info("===================================================");
+            logger.info("Reading file: {}", msgFile.getName());
+            logger.info("===================================================");
             try (MAPIMessage msg = new MAPIMessage(msgFile)) {
                 try {
-                    System.out.println("From: " + msg.getDisplayFrom());
-                    System.out.println("To: " + msg.getDisplayTo());
-                    System.out.println("Subject: " + msg.getSubject());
-                    System.out.println("Body: " + msg.getTextBody());
+                    logger.info("From: {}", msg.getDisplayFrom());
+                    logger.info("To: {}", msg.getDisplayTo());
+                    logger.info("Subject: {}", msg.getSubject());
+                    logger.info("Body: {}", msg.getTextBody());
                 } catch (ChunkNotFoundException e) {
-                    System.err.println("Could not extract a specific part of the message (e.g. body, subject). It may be in a different format or missing.");
+                    logger.error("Could not extract a specific part of the message (e.g. body, subject). It may be in a different format or missing.", e);
                 }
 
                 for (AttachmentChunks attachment : msg.getAttachmentFiles()) {
@@ -58,14 +61,14 @@ public class MsgReader {
                     File attachmentFile = new File(attachmentsDir, filename);
                     try (FileOutputStream fos = new FileOutputStream(attachmentFile)) {
                         fos.write(attachment.getAttachData().getValue());
-                        System.out.println("Saved attachment: " + filename);
+                        logger.info("Saved attachment: {}", filename);
                     }
                 }
 
             } catch (IOException e) {
-                System.err.println("Error reading file " + msgFile.getName() + ": " + e.getMessage());
+                logger.error("Error reading file {}: {}", msgFile.getName(), e.getMessage(), e);
             }
-            System.out.println("\n");
+            logger.info("\n");
         }
     }
 }
