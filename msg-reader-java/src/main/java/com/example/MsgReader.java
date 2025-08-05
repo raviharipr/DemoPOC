@@ -13,7 +13,8 @@ public class MsgReader {
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Usage: java -jar msg-reader-1.0-SNAPSHOT.jar <folder_path>");
-            return;
+            args = new String[]{"./dir/sample-msg-files/"};
+            //   return;
         }
 
         File folder = new File(args[0]);
