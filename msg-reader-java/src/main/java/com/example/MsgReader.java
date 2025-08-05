@@ -9,6 +9,7 @@ import java.io.IOException;
 public class MsgReader {
 
     public static void main(String[] args) {
+        args = new String[] { "./dir/sample-msg-files/"};
         if (args.length != 1) {
             System.out.println("Usage: java -jar msg-reader-1.0-SNAPSHOT.jar <folder_path>");
             return;
