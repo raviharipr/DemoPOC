@@ -1,15 +1,16 @@
 package com.example;
 
 import org.apache.poi.hsmf.MAPIMessage;
+import org.apache.poi.hsmf.datatypes.AttachmentChunks;
 import org.apache.poi.hsmf.exceptions.ChunkNotFoundException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class MsgReader {
 
     public static void main(String[] args) {
-        args = new String[] { "./dir/sample-msg-files/"};
         if (args.length != 1) {
             System.out.println("Usage: java -jar msg-reader-1.0-SNAPSHOT.jar <folder_path>");
             return;
@@ -28,6 +29,11 @@ public class MsgReader {
             return;
         }
 
+        File attachmentsDir = new File("dir/attachments");
+        if (!attachmentsDir.exists()) {
+            attachmentsDir.mkdirs();
+        }
+
         for (File msgFile : files) {
             System.out.println("===================================================");
             System.out.println("Reading file: " + msgFile.getName());
@@ -41,6 +47,20 @@ public class MsgReader {
                 } catch (ChunkNotFoundException e) {
                     System.err.println("Could not extract a specific part of the message (e.g. body, subject). It may be in a different format or missing.");
                 }
+
+                for (AttachmentChunks attachment : msg.getAttachmentFiles()) {
+                    String filename = attachment.getAttachLongFileName().toString();
+                    if (filename.isEmpty()) {
+                        filename = attachment.getAttachFileName().toString();
+                    }
+
+                    File attachmentFile = new File(attachmentsDir, filename);
+                    try (FileOutputStream fos = new FileOutputStream(attachmentFile)) {
+                        fos.write(attachment.getAttachData().getValue());
+                        System.out.println("Saved attachment: " + filename);
+                    }
+                }
+
             } catch (IOException e) {
                 System.err.println("Error reading file " + msgFile.getName() + ": " + e.getMessage());
             }

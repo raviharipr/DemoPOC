@@ -37,3 +37,7 @@ java -jar target/msg-reader-1.0-SNAPSHOT.jar my_messages
 ```
 
 The application will then print the content of each `.msg` file to the console.
+
+## Attachment Handling
+
+Any attachments found in the `.msg` files will be automatically downloaded and saved to the `dir/attachments` directory, which will be created in the same directory where you run the application.
