@@ -38,6 +38,14 @@ java -jar target/msg-reader-1.0-SNAPSHOT.jar my_messages
 
 The application will then print the content of each `.msg` file to the console.
 
-## Attachment Handling
+## Logging
 
-Any attachments found in the `.msg` files will be automatically downloaded and saved to the `dir/attachments` directory, which will be created in the same directory where you run the application.
+This application uses SLF4J for logging. By default, the log level is set to `INFO`. You can change the log level by setting a system property when running the application.
+
+For example, to set the log level to `DEBUG`, use the following command:
+
+```bash
+java -Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG -jar target/msg-reader-1.0-SNAPSHOT.jar <folder_path>
+```
+
+Supported log levels are: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`.
